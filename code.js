@@ -4,37 +4,39 @@
 // You can access browser APIs in the <script> tag inside "ui.html" which has a
 // full browser environment (see documentation).
 // This shows the HTML page in "ui.html".
-var Size = 0;
+var newSize = 0;
+// Calculate size even after rotation
+function sizeAfterRotation(size, degrees) {
+    degrees = degrees % 180;
+    if (degrees < 0) {
+        degrees = 180 + degrees;
+    }
+    if (degrees >= 90) {
+        size = [size[1], size[0]];
+        degrees = degrees - 90;
+    }
+    if (degrees === 0) {
+        return size;
+    }
+    const radians = degrees * Math.PI / 180;
+    const width = (size[0] * Math.cos(radians)) + (size[1] * Math.sin(radians));
+    const height = (size[0] * Math.sin(radians)) + (size[1] * Math.cos(radians));
+    return [width, height];
+}
 for (const node of figma.currentPage.selection) {
     var curSize = 0;
-    if (node.width > node.height)
-        curSize = node.width;
+    var rotatedSize = sizeAfterRotation([node.width, node.height], node.rotation);
+    // console.log(Math.round(rotatedSize[0])+" & "+Math.round(rotatedSize[1]));
+    if (rotatedSize[0] > rotatedSize[1])
+        curSize = rotatedSize[0];
     else
-        curSize = node.height;
-    if (curSize > Size)
-        Size = curSize;
-    function sizeAfterRotation(size, degrees) {
-        degrees = degrees % 180;
-        if (degrees < 0) {
-            degrees = 180 + degrees;
-        }
-        if (degrees >= 90) {
-            size = [size[1], size[0]];
-            degrees = degrees - 90;
-        }
-        if (degrees === 0) {
-            return size;
-        }
-        const radians = degrees * Math.PI / 180;
-        const width = (size[0] * Math.cos(radians)) + (size[1] * Math.sin(radians));
-        const height = (size[0] * Math.sin(radians)) + (size[1] * Math.cos(radians));
-        return [width, height];
-    }
-    var tFuck = sizeAfterRotation([node.width, node.height], node.rotation);
-    console.log(Math.round(tFuck[0]) + " & " + Math.round(tFuck[1]));
+        curSize = rotatedSize[1];
+    if (curSize > newSize)
+        newSize = curSize;
+    // console.log(newSize);
 }
 figma.showUI(__html__);
-figma.ui.postMessage(Size);
+figma.ui.postMessage(Math.round(newSize));
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
 // posted message.
@@ -66,8 +68,6 @@ figma.ui.onmessage = msg => {
                 // frame.findChild()
             }
         }
-        // function addNewNodeToSelection(page: PageNode, node: SceneNode) 
-        // page.selection = 0
     }
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
