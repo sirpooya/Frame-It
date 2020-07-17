@@ -13,6 +13,25 @@ for (const node of figma.currentPage.selection) {
         curSize = node.height;
     if (curSize > Size)
         Size = curSize;
+    function sizeAfterRotation(size, degrees) {
+        degrees = degrees % 180;
+        if (degrees < 0) {
+            degrees = 180 + degrees;
+        }
+        if (degrees >= 90) {
+            size = [size[1], size[0]];
+            degrees = degrees - 90;
+        }
+        if (degrees === 0) {
+            return size;
+        }
+        const radians = degrees * Math.PI / 180;
+        const width = (size[0] * Math.cos(radians)) + (size[1] * Math.sin(radians));
+        const height = (size[0] * Math.sin(radians)) + (size[1] * Math.cos(radians));
+        return [width, height];
+    }
+    var tFuck = sizeAfterRotation([node.width, node.height], node.rotation);
+    console.log(Math.round(tFuck[0]) + " & " + Math.round(tFuck[1]));
 }
 figma.showUI(__html__);
 figma.ui.postMessage(Size);
@@ -47,6 +66,8 @@ figma.ui.onmessage = msg => {
                 // frame.findChild()
             }
         }
+        // function addNewNodeToSelection(page: PageNode, node: SceneNode) 
+        // page.selection = 0
     }
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
