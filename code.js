@@ -30,23 +30,25 @@ function clone(val) {
 function deselectAll(page) {
     page.selection = [];
 }
-function selectNode(page, node) {
-    // selection.push(node)
+function selectOps(page, node, frame) {
     // Don't forget to check that something is selected!
     // if (node.children.length > 0) {
     // page.selection = [node.children[0]]
     // }
+    // Deselect current Node
     var selection = figma.currentPage.selection.slice();
     for (var i = selection.length - 1; i >= 0; --i) {
         if (selection[i].id == node.id) {
             selection.splice(i, 1);
         }
     }
-    console.log(selection);
-    // figma.currentPage.selection = selection;
-    // console.log(page.selection);
-    // Only Selelct a this Node
-    // page.selection = [node];
+    selection.push(frame);
+    return selection;
+}
+function selectPush(page, selections) {
+    page.selection = [];
+    console.log(selections);
+    figma.currentPage.selection = selections;
 }
 for (const node of figma.currentPage.selection) {
     var curSize = 0;
@@ -79,6 +81,7 @@ figma.ui.onmessage = msg => {
         // }
         // figma.currentPage.selection = nodes;
         // figma.viewport.scrollAndZoomIntoView(nodes);
+        var selections = [];
         for (const node of figma.currentPage.selection) {
             if ("opacity" in node) {
                 const frame = figma.createFrame();
@@ -94,11 +97,11 @@ figma.ui.onmessage = msg => {
                 var rotatedSize = sizeAfterRotation([node.width, node.height], node.rotation);
                 node.x = (size - rotatedSize[0]) / 2;
                 node.y = (size - rotatedSize[1]) / 2; // T0D0 2 : fix aligning for rotated layers
-                // T0D0 1 : add selection parent Frames
                 // deselectAll(figma.currentPage);
-                selectNode(figma.currentPage, node);
+                selections = selectOps(figma.currentPage, node, frame);
             }
         }
+        selectPush(figma.currentPage, selections);
     }
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.

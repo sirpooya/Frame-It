@@ -41,8 +41,14 @@ function selectOps(page: PageNode , node: SceneNode , frame: SceneNode) {
     if (selection[i].id == node.id) {selection.splice(i,1);}
   }
 
-  selection.push(frame)
-  // figma.currentPage.selection = selection;
+  selection.push(frame);
+  return selection;
+}
+
+function selectPush(page: PageNode , selections: any) {
+  page.selection = [];
+  console.log(selections);
+  figma.currentPage.selection = selections;
 }
 
 for (const node of figma.currentPage.selection) {
@@ -74,6 +80,7 @@ figma.ui.onmessage = msg => {
     // }
     // figma.currentPage.selection = nodes;
     // figma.viewport.scrollAndZoomIntoView(nodes);
+    var selections = [];
     for (const node of figma.currentPage.selection) {
       if ("opacity" in node) {
         const frame = figma.createFrame();
@@ -93,14 +100,12 @@ figma.ui.onmessage = msg => {
         node.y = (size-rotatedSize[1]) / 2; // T0D0 2 : fix aligning for rotated layers
         
         // deselectAll(figma.currentPage);
-        selectOps(figma.currentPage, node , frame);
+        selections = selectOps(figma.currentPage, node , frame);
 
       }
-
-      selectPush();
-
     }
-      
+    selectPush(figma.currentPage, selections);
+    
   }
 
   // Make sure to close the plugin when you're done. Otherwise the plugin will
