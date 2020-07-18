@@ -25,10 +25,12 @@ function clone(val) {
   return JSON.parse(JSON.stringify(val))
 }
 
+// Deselect all Nodes
 function deselectAll(page: PageNode) {
     page.selection = [];
 }
 
+// Deselect specific Nodes
 function deselectNode(node: SceneNode , frame: SceneNode) {
   // Don't forget to check that something is selected!
   // if (node.children.length > 0) {
@@ -38,15 +40,16 @@ function deselectNode(node: SceneNode , frame: SceneNode) {
   for (var i = selection.length - 1; i >= 0; --i) {
     if (selection[i].id == node.id) {selection.splice(i,1);}
   }
-
   // return selection;
 }
 
+// Select specific Frames
 function selectFrames(page: PageNode , selections: any) {
-  console.log(selections);
+  // console.log(selections);
   page.selection = [];
   figma.currentPage.selection = selections;
 }
+
 
 for (const node of figma.currentPage.selection) {
     var curSize = 0;
@@ -92,9 +95,15 @@ figma.ui.onmessage = msg => {
         frame.appendChild(node);
         frame.name = node.name;
         
+        // Aligning in Frame
         var rotatedSize = sizeAfterRotation([ node.width, node.height ], node.rotation);
-        node.x = (size-rotatedSize[0]) / 2;
-        node.y = (size-rotatedSize[1]) / 2; // T0D0 2 : fix aligning for rotated layers
+        if (rotatedSize[0] != node.width && rotatedSize[1] != node.height)
+        console.log("object is rotated af!!");
+        else console.log("object is normal");
+
+        console.log(rotatedSize[0]+" "+rotatedSize[1])
+        node.x = (size-Math.round(rotatedSize[0])) / 2;
+        node.y = (size-Math.round(rotatedSize[1])) / 2;
         
         // deselectAll(figma.currentPage);
         selections.push(frame);

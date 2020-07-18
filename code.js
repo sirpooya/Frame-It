@@ -27,9 +27,11 @@ function sizeAfterRotation(size, degrees) {
 function clone(val) {
     return JSON.parse(JSON.stringify(val));
 }
+// Deselect all Nodes
 function deselectAll(page) {
     page.selection = [];
 }
+// Deselect specific Nodes
 function deselectNode(node, frame) {
     // Don't forget to check that something is selected!
     // if (node.children.length > 0) {
@@ -43,8 +45,9 @@ function deselectNode(node, frame) {
     }
     // return selection;
 }
+// Select specific Frames
 function selectFrames(page, selections) {
-    console.log(selections);
+    // console.log(selections);
     page.selection = [];
     figma.currentPage.selection = selections;
 }
@@ -92,9 +95,15 @@ figma.ui.onmessage = msg => {
                 frame.y = node.y;
                 frame.appendChild(node);
                 frame.name = node.name;
+                // Aligning in Frame
                 var rotatedSize = sizeAfterRotation([node.width, node.height], node.rotation);
-                node.x = (size - rotatedSize[0]) / 2;
-                node.y = (size - rotatedSize[1]) / 2; // T0D0 2 : fix aligning for rotated layers
+                if (rotatedSize[0] != node.width && rotatedSize[1] != node.height)
+                    console.log("object is rotated af!!");
+                else
+                    console.log("object is normal");
+                console.log(rotatedSize[0] + " " + rotatedSize[1]);
+                node.x = (size - Math.round(rotatedSize[0])) / 2;
+                node.y = (size - Math.round(rotatedSize[1])) / 2;
                 // deselectAll(figma.currentPage);
                 selections.push(frame);
             }
