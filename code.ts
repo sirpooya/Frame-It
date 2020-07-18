@@ -102,7 +102,7 @@ figma.ui.onmessage = msg => {
         frame.resize(size, size);
         const fills = clone(frame.fills);
         fills[0].visible = false;
-        // frame.fills = fills;
+        frame.fills = fills;
 
         // Find out if layer is rotated
         var rotatedSize = sizeAfterRotation([ node.width, node.height ], node.rotation);
