@@ -5,7 +5,7 @@
 // full browser environment (see documentation).
 // This shows the HTML page in "ui.html".
 var newSize = 0;
-// Calculate size even after rotation
+// Globarl Function: Calculate size even after rotation
 function sizeAfterRotation(size, degrees) {
     degrees = degrees % 180;
     if (degrees < 0) {
@@ -22,6 +22,10 @@ function sizeAfterRotation(size, degrees) {
     const width = (size[0] * Math.cos(radians)) + (size[1] * Math.sin(radians));
     const height = (size[0] * Math.sin(radians)) + (size[1] * Math.cos(radians));
     return [width, height];
+}
+// Close Function: writing for Read-only properties
+function clone(val) {
+    return JSON.parse(JSON.stringify(val));
 }
 for (const node of figma.currentPage.selection) {
     var curSize = 0;
@@ -59,12 +63,16 @@ figma.ui.onmessage = msg => {
                 const frame = figma.createFrame();
                 var size = msg.count;
                 frame.resize(size, size);
+                const fills = clone(frame.fills);
+                fills[0].visible = false;
+                frame.fills = fills;
                 frame.x = node.x;
                 frame.y = node.y;
                 frame.appendChild(node);
                 frame.name = node.name;
-                node.y = (size - node.height) / 2;
-                node.x = (size - node.width) / 2;
+                var rotatedSize = sizeAfterRotation([node.width, node.height], node.rotation);
+                node.x = (size - rotatedSize[0]) / 2;
+                node.y = (size - rotatedSize[1]) / 2; // T0D0 : fix aligning for rotated layers
                 // frame.findChild()
             }
         }
