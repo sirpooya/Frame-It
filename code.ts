@@ -25,25 +25,25 @@ function clone(val) {
   return JSON.parse(JSON.stringify(val))
 }
 
-function deselectNode(page: PageNode) {
+function deselectAll(page: PageNode) {
     page.selection = [];
 }
 
-function selectNode(page: PageNode , node: SceneNode) {
+function selectOps(page: PageNode , node: SceneNode , frame: SceneNode) {
   // Don't forget to check that something is selected!
   // if (node.children.length > 0) {
     // page.selection = [node.children[0]]
-    console.log(node);
-  // }
+    // }
+    
+  // Deselect current Node
+  var selection = figma.currentPage.selection.slice()
+  for (var i = selection.length - 1; i >= 0; --i) {
+    if (selection[i].id == node.id) {selection.splice(i,1);}
+  }
 
-  // Only Selelct a this Node
-  // page.selection = [node];
-
-  console.log(page.selection);
-  
+  selection.push(frame)
+  // figma.currentPage.selection = selection;
 }
-
-selectNode(figma.currentPage, node);
 
 for (const node of figma.currentPage.selection) {
     var curSize = 0;
@@ -92,10 +92,12 @@ figma.ui.onmessage = msg => {
         node.x = (size-rotatedSize[0]) / 2;
         node.y = (size-rotatedSize[1]) / 2; // T0D0 2 : fix aligning for rotated layers
         
-        // frame.findChild() // T0D0 1 : fix desection
-        // selectNode(figma.currentPage, frame);
+        // deselectAll(figma.currentPage);
+        selectOps(figma.currentPage, node , frame);
 
       }
+
+      selectPush();
 
     }
       
