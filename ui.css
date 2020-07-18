@@ -19,3 +19,7 @@ main>div {
     border-radius: 5px;
     padding: 5px 10px;
   }
+
+input {
+    width: 10px !important;
+  }
