@@ -29,25 +29,22 @@ function deselectAll(page: PageNode) {
     page.selection = [];
 }
 
-function selectOps(page: PageNode , node: SceneNode , frame: SceneNode) {
+function deselectNode(node: SceneNode , frame: SceneNode) {
   // Don't forget to check that something is selected!
   // if (node.children.length > 0) {
     // page.selection = [node.children[0]]
     // }
-    
-  // Deselect current Node
   var selection = figma.currentPage.selection.slice()
   for (var i = selection.length - 1; i >= 0; --i) {
     if (selection[i].id == node.id) {selection.splice(i,1);}
   }
 
-  selection.push(frame);
-  return selection;
+  // return selection;
 }
 
-function selectPush(page: PageNode , selections: any) {
-  page.selection = [];
+function selectFrames(page: PageNode , selections: any) {
   console.log(selections);
+  page.selection = [];
   figma.currentPage.selection = selections;
 }
 
@@ -100,11 +97,11 @@ figma.ui.onmessage = msg => {
         node.y = (size-rotatedSize[1]) / 2; // T0D0 2 : fix aligning for rotated layers
         
         // deselectAll(figma.currentPage);
-        selections = selectOps(figma.currentPage, node , frame);
+        selections.push(frame);
 
       }
     }
-    selectPush(figma.currentPage, selections);
+    selectFrames(figma.currentPage, selections);
     
   }
 

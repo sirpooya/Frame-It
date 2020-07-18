@@ -30,24 +30,22 @@ function clone(val) {
 function deselectAll(page) {
     page.selection = [];
 }
-function selectOps(page, node, frame) {
+function deselectNode(node, frame) {
     // Don't forget to check that something is selected!
     // if (node.children.length > 0) {
     // page.selection = [node.children[0]]
     // }
-    // Deselect current Node
     var selection = figma.currentPage.selection.slice();
     for (var i = selection.length - 1; i >= 0; --i) {
         if (selection[i].id == node.id) {
             selection.splice(i, 1);
         }
     }
-    selection.push(frame);
-    return selection;
+    // return selection;
 }
-function selectPush(page, selections) {
-    page.selection = [];
+function selectFrames(page, selections) {
     console.log(selections);
+    page.selection = [];
     figma.currentPage.selection = selections;
 }
 for (const node of figma.currentPage.selection) {
@@ -98,10 +96,10 @@ figma.ui.onmessage = msg => {
                 node.x = (size - rotatedSize[0]) / 2;
                 node.y = (size - rotatedSize[1]) / 2; // T0D0 2 : fix aligning for rotated layers
                 // deselectAll(figma.currentPage);
-                selections = selectOps(figma.currentPage, node, frame);
+                selections.push(frame);
             }
         }
-        selectPush(figma.currentPage, selections);
+        selectFrames(figma.currentPage, selections);
     }
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
