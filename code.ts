@@ -20,6 +20,20 @@ function sizeAfterRotation(size, degrees) {
   return [ width, height ];
 }
 
+function capOfRotation (size, degrees) {
+  degrees = degrees % 180;
+  if (degrees < 0) { degrees = 180 + degrees; }
+  if (degrees >= 90) { size = [ size[1], size[0] ]; degrees = degrees - 90; }
+  if (degrees === 0) { return size; }
+  const radians = degrees * Math.PI / 180;
+  const cap = [];
+  cap[0] = (size[0] * Math.sin(radians));
+  cap[1] = (size[0] * Math.cos(radians));
+  cap[2] = (size[1] * Math.sin(radians));
+  cap[3] = (size[1] * Math.cos(radians));
+  return cap;
+}
+
 // Close Function: writing for Read-only properties
 function clone(val) {
   return JSON.parse(JSON.stringify(val))
@@ -88,22 +102,36 @@ figma.ui.onmessage = msg => {
         frame.resize(size, size);
         const fills = clone(frame.fills);
         fills[0].visible = false;
-        frame.fills = fills;
+        // frame.fills = fills;
 
-        frame.x = node.x;
-        frame.y = node.y;
+        // Find out if layer is rotated
+        var rotatedSize = sizeAfterRotation([ node.width, node.height ], node.rotation);
+        var cap = capOfRotation([ node.width, node.height ], node.rotation);
+        var rotatedW = Math.round(rotatedSize[0]);
+        var rotatedH = Math.round(rotatedSize[1]);
+        if (rotatedW != node.width && rotatedH != node.height)
+         {
+          frame.x = node.x - rotatedW/2 ;
+          frame.y = node.y - rotatedH/2 ;
+
+          // console.log(cap[0]+cap[1]+cap[2]+cap[3]);
+          node.x = (size - rotatedW) / 2 ;
+          node.y = (size - rotatedH) / 2 ;
+          if (node.rotation >= 90) {node.x = ((size - rotatedW) / 2) + cap[2]; node.y = (size - rotatedH) / 2 + cap[0] + cap[3];}
+          else if (node.rotation < 0) {node.x = (size - rotatedW) / 2 + cap[1]; node.y = (size - rotatedH)/2 ;}
+          else if (node.rotation <= -90) {node.x = (size - rotatedW) / 2 + cap[1] + cap[2] ; node.y = (size - rotatedH)/2 + cap[3];}
+         }
+        else {
+
+          frame.x = node.x;
+          frame.y = node.y;
+
+          node.x = (size - node.width) / 2;
+          node.y = (size - node.height) / 2;
+        }
+        
         frame.appendChild(node);
         frame.name = node.name;
-        
-        // Aligning in Frame
-        var rotatedSize = sizeAfterRotation([ node.width, node.height ], node.rotation);
-        if (rotatedSize[0] != node.width && rotatedSize[1] != node.height)
-        console.log("object is rotated af!!");
-        else console.log("object is normal");
-
-        console.log(rotatedSize[0]+" "+rotatedSize[1])
-        node.x = (size-Math.round(rotatedSize[0])) / 2;
-        node.y = (size-Math.round(rotatedSize[1])) / 2;
         
         // deselectAll(figma.currentPage);
         selections.push(frame);
