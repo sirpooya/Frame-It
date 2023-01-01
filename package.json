@@ -12,6 +12,6 @@
     "@figma/plugin-typings": "^1.15.0"
   },
   "devDependencies": {
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^5.0.1"
   }
 }
